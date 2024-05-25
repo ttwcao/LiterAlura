@@ -1,26 +1,26 @@
 package br.com.catalogo.literalura.principal;
 
-import br.com.catalogo.literalura.model.DadosLivro;
-import br.com.catalogo.literalura.model.Livro;
-import br.com.catalogo.literalura.model.ResultadoDados;
+import br.com.catalogo.literalura.model.*;
 import br.com.catalogo.literalura.repository.LivroRepository;
 import br.com.catalogo.literalura.service.ConsumoApi;
 import br.com.catalogo.literalura.service.ConverteDados;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import javax.sound.midi.Soundbank;
+import javax.swing.text.html.Option;
+import java.sql.SQLOutput;
+import java.util.*;
 
 public class Principal {
 
-    private final LivroRepository repositorio;
-
     private Scanner leitura = new Scanner(System.in);
     private final String URL = "http://gutendex.com/books/?search=";
-    //private final String URL = "https://parallelum.com.br/fipe/api/v1/carros";
     private ConsumoApi consumoApi = new ConsumoApi();
     private ConverteDados conversor = new ConverteDados();
-    List<Livro> livros = new ArrayList<>();
+    private List<DadosLivro> dadosLivros = new ArrayList<>();
+
+    //referencia para o JPA passado na aplicação
+    private LivroRepository repositorio;
 
     public Principal(LivroRepository repositorio) {
         this.repositorio = repositorio;
@@ -40,7 +40,7 @@ public class Principal {
                         2 - Listar livros registrados
                         3 - Listar autores registrados
                         4 - Listar autores vivos em um determinado ano
-                        5 - Listar livroOlds em um determinado idioma                                  
+                        5 - Listar livro em um determinado idioma                                  
                         0 - Sair
                         """;
 
@@ -75,56 +75,119 @@ public class Principal {
 
     }
 
-    private ResultadoDados obterDadosLivro(String tituloBusca) {
-        var json = consumoApi.obterDados(URL + tituloBusca.toLowerCase().replace(" ", "%20"));
-        //System.out.println(json);
-        return conversor.ObterDados(json, ResultadoDados.class);
-    }
-
     private void buscarLivro() {
 
+        System.out.println("Informe o título do livro: ");
+        var tituloBusca = leitura.nextLine();
         var cadastrarNovo = "s";
-        //while (cadastrarNovo.equalsIgnoreCase("s")) {
 
-            System.out.println("Informe o título do livro: ");
-            var tituloBusca = leitura.nextLine();
+        while (cadastrarNovo.equalsIgnoreCase("s")) {
 
-            ResultadoDados resultadoDados = obterDadosLivro(tituloBusca);
+            var tituloBuscaFormatado = tituloBusca.toLowerCase().replace(" ", "%20");
+            var json = consumoApi.obterDados(URL + tituloBuscaFormatado);
+            ResultadoApi resultadoApi = conversor.ObterDados(json, ResultadoApi.class);
 
-            List<DadosLivro> dadosLivros = resultadoDados.resultados().stream().toList();
-        System.out.println(dadosLivros);
-//            dadosLivros.forEach(l -> livros.add(new Livro(l)));
-//            try{
-//                livros.forEach(l -> repositorio.save(l));
-//            } catch (Exception e){
-//
-//            }
-//            System.out.println(repositorio.findBytituloContainingIgnoreCase‎(tituloBusca));
+            if (resultadoApi != null && resultadoApi.getResults() != null && !resultadoApi.getResults().isEmpty()) {
+                System.out.println(" \n =============== Obra(s) Localizadas =============== \n");
 
+                for (DadosLivro livro : resultadoApi.getResults()) {
+                    System.out.println("Título: " + livro.getTitle());
+                    System.out.println("Autore(s) da obra ");
 
+                    for (DadosAutor autor : livro.getAuthors()) {
+                        System.out.println("  Nome: " + autor.getName());
+                        System.out.println("  Ano de Nascimento: " + autor.getBirthYear());
+                        System.out.println("  Ano de Morte: " + autor.getDeathYear());
+                    }
+                    System.out.println("Idiomas: " + String.join(", ", livro.getLanguages()));
+                    System.out.println("Downloads até agora: " +livro.getDownloadCount());
+                }
+                System.out.println("===================================\n" +
+                        "Deseja salvar o(s) título(s)? (s/n) \n" +
+                        "=================================== \n");
+                var salvarBanco = leitura.nextLine();
 
+                if(salvarBanco.equalsIgnoreCase("s")){
+                    System.out.println("\n ***** dados salvos com sucesso ***** \n");
+                    List<Livro> livros = new ArrayList<>();
 
-//            //construtor para salvar o Livro
-//            Livro livro = new Livro(tituloBusca);
-//            //método para salvar o livro no banco
-//            repositorio.save(livro);
-            //System.out.println("Deseja cadastrar novo Livro?");
-            //cadastrarNovo = leitura.nextLine();
-       //}
+                    //eliminando titulos duplicados
+                    Set<String> titulosUnicos = new HashSet<>();
+
+                    for (DadosLivro dadosLivro:resultadoApi.getResults()){
+
+                        if(titulosUnicos.add(dadosLivro.getTitle())) {
+                            Livro livro = new Livro(dadosLivro);
+
+                                // Comparação do idioma retornado com os valores do enum
+                                for(String idiomaStr: dadosLivro.getLanguages()){
+                                    Idioma idiomaEnum = Idioma.fromCode(idiomaStr.toLowerCase());
+                                            if(idiomaEnum != null){
+                                                livro.setIdiomas(idiomaEnum.getIdiomaTraduzido());
+                                                break;
+                                            }
+                                }
+
+                            //salvar dados no banco
+                            livros.add(livro);
+                            repositorio.save(livro);
+                        } else {
+                            System.out.println("Títulos duplicados não registrados: " + dadosLivro.getTitle());
+                        }
+                    }
+
+                    cadastrarNovo = "n";
+                } else {
+                    cadastrarNovo = "n";
+                }
+            } else {
+                System.out.println("Nenhum título encontrado com este nome: " +tituloBusca);
+                System.out.println("Deseja pesquisar outro título? (s/n)");
+                cadastrarNovo = leitura.nextLine();
+            }
+        }
     }
 
 
 
     private void listarLivros() {
-
+        List <Livro> acervo = repositorio.findAll();
+        if(acervo.isEmpty()){
+            System.out.println("Acervo ainda sem registros! \n");
+            acervo.forEach(System.out::println);
+        } else {
+            System.out.println("Acervo Registrado: \n");
+            acervo.forEach(System.out::println);
+        }
     }
+
     private void listarAutores() {
+        List<String> acervo = repositorio.findNomeAutores();
+        if(acervo.isEmpty()){
+            System.out.println("Acervo ainda sem registros! \n");
+            acervo.forEach(System.out::println);
+        } else {
+            System.out.println("Acervo Registrado: \n");
+            acervo.forEach(System.out::println);
+        }
 
     }
     private void listarAutoresVivos() {
+        System.out.println("Digite o ano que deseja pesquisar: ");
+        Integer ano = leitura.nextInt();
+        List<Autor> acervo = repositorio.findAutoresEmDeterminadoAno(ano);
+        if(acervo.isEmpty()){
+            System.out.println("Acervo ainda sem registros! \n");
+            acervo.forEach(System.out::println);
+        } else {
+            System.out.println("Acervo Registrado: \n");
+            acervo.forEach(System.out::println);
+        }
 
     }
     private void listarLivreIdioma() {
+        System.out.println("Digite o idioma que deseja consultarr: ");
+        String idioma = leitura.nextLine();
 
     }
 

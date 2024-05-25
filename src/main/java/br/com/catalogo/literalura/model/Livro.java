@@ -3,34 +3,53 @@ package br.com.catalogo.literalura.model;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
+//notação de entidade para o banco de dados
 @Entity
+
+//cdefinição do nome da tabela no banco
 @Table(name="livros")
 public class Livro {
+
+    //parametros para coluna ID do bando de dados
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    //definição de registro único de nome para livro
     @Column(unique = true)
     private String titulo;
-    private String[] idiomas;
+
+    private String idiomas;
+
+    //private List<Idioma> idiomas = new ArrayList<>();
     private Integer contadorDown;
 
-    @OneToMany(mappedBy = "livro")
+    //relacionamento com tabela autor
+    //@Transient //não persistir o campo no banco
+    //cascade instrui o JPA a gravar pela persistencia
+    @OneToMany (mappedBy = "livro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Autor> autores = new ArrayList<>();
 
-    public Livro(){}
+    //construto padrão
+    public Livro(ResultadoApi dadosLivros){}
 
-    public Livro(DadosLivro dadosLivro){
-        this.titulo = dadosLivro.titulo();
-        this.idiomas = dadosLivro.idiomas().toArray(new String[0]);
-        this.contadorDown = dadosLivro.contadorDown();
-        List<DadosAutor> dadosAutores = dadosLivro.autores().stream().toList();
-        dadosAutores.forEach(a -> autores.add(new Autor(a,this)));
-    }
+        public Livro(DadosLivro livro){
+            this.titulo = livro.getTitle();
+//            this.idiomas = new ArrayList<>();
+//            for (String idioma: livro.getLanguages()){
+//                this.idiomas.add(Idioma.fromCode(idioma.toUpperCase()));
+//            }
+            this.contadorDown = livro.getDownloadCount();
+            for(DadosAutor dadosAutor : livro.getAuthors()){
+                Autor autor = new Autor(dadosAutor, this);
+                this.autores.add(autor);
+            }
 
+        }
+
+    // Getters e setters
     public Long getId() {
         return id;
     }
@@ -47,11 +66,11 @@ public class Livro {
         this.titulo = titulo;
     }
 
-    public String[] getIdiomas() {
+    public String getIdiomas() {
         return idiomas;
     }
 
-    public void setIdiomas(String[] idiomas) {
+    public void setIdiomas(String idiomas) {
         this.idiomas = idiomas;
     }
 
@@ -68,24 +87,20 @@ public class Livro {
     }
 
     public void setAutores(List<Autor> autores) {
-        autores.forEach(a -> a.setLivro(this));
         this.autores = autores;
     }
 
     @Override
     public String toString() {
         return "Livro: " +
-                "título: '" + titulo + '\'' +
-                ", idiomas: " + Arrays.toString(idiomas) +
-                ", downloads: " + contadorDown +
-                ", autor(s): " + autores ;
-    }
-
-    private String nomeAutor(){
-        StringBuilder nomeAutor = new StringBuilder();
-        for (Autor a: autores){
-            nomeAutor.append(a.getNome()).append(", ");
-        }
-        return nomeAutor.toString();
+                "Título = '" + titulo + '\'' +
+                ", Idiomas =" + idiomas +
+                ", Downloads realizados = " + contadorDown +
+                ", autores = " + autores +
+                '}';
     }
 }
+
+
+
+

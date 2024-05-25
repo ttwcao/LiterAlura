@@ -11,21 +11,33 @@ public class Autor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nome;
     private Integer nascAno;
     private Integer mortAno;
 
     @ManyToOne
+    @JoinColumn(name = "livro_id")
     private Livro livro;
 
-    public Autor() {}
+    //construto padrão
+    public Autor() {
+    }
 
     public Autor(DadosAutor dadosAutor, Livro livro) {
-        String[] autor = dadosAutor.nome().split(",");
-        this.nome = autor[1] + " " + autor[0];
-        this.nascAno = dadosAutor.nascAno();
-        this.mortAno = dadosAutor.mortAno();
+        this.nome = dadosAutor.getName();
+        this.nascAno = dadosAutor.getBirthYear();
+        this.mortAno = dadosAutor.getDeathYear();
+        this.livro = livro;
+    }
+
+
+    // Getters e setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -52,14 +64,6 @@ public class Autor {
         this.mortAno = mortAno;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Livro getLivro() {
         return livro;
     }
@@ -68,16 +72,16 @@ public class Autor {
         this.livro = livro;
     }
 
+    // Método toString para representação significativa
     @Override
-    public String toString(){
-        return
-                nome;
+    public String toString() {
+        return "Autor{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", nascAno=" + nascAno +
+                ", mortAno=" + mortAno +
+                ", livro=" + (livro != null ? livro.getTitulo() : "null") +
+                '}';
+
     }
-
-    //    //anotação para o relacionamento
-//    @OneToMany(mappedBy = "autor")
-//    //cada autor tem uma lista de livros.
-//    private List<LivroOld> livroOlds = new ArrayList<>();
-
-
 }
