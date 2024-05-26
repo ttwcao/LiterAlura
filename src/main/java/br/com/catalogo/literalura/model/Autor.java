@@ -75,13 +75,9 @@ public class Autor {
     // Método toString para representação significativa
     @Override
     public String toString() {
-        return "Autor{" +
-                "id=" + id +
-                ", nome='" + nome + '\'' +
-                ", nascAno=" + nascAno +
-                ", mortAno=" + mortAno +
-                ", livro=" + (livro != null ? livro.getTitulo() : "null") +
-                '}';
+        return "Autor: " + nome + "\n" +
+                "Ano de nascimento: " + nascAno + "\n"+
+                "________________________________________________\n";
 
     }
 }

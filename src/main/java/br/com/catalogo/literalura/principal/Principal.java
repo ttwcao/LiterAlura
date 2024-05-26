@@ -76,12 +76,11 @@ public class Principal {
     }
 
     private void buscarLivro() {
-
-        System.out.println("Informe o título do livro: ");
-        var tituloBusca = leitura.nextLine();
         var cadastrarNovo = "s";
 
         while (cadastrarNovo.equalsIgnoreCase("s")) {
+            System.out.println("Informe o título do livro: ");
+            var tituloBusca = leitura.nextLine();
 
             var tituloBuscaFormatado = tituloBusca.toLowerCase().replace(" ", "%20");
             var json = consumoApi.obterDados(URL + tituloBuscaFormatado);
@@ -102,9 +101,9 @@ public class Principal {
                     System.out.println("Idiomas: " + String.join(", ", livro.getLanguages()));
                     System.out.println("Downloads até agora: " +livro.getDownloadCount());
                 }
-                System.out.println("===================================\n" +
-                        "Deseja salvar o(s) título(s)? (s/n) \n" +
-                        "=================================== \n");
+                System.out.println("=======================================================\n" +
+                                   "   Deseja salvar o(s) título(s) no Literalura? (s/n)   \n" +
+                                   "=======================================================");
                 var salvarBanco = leitura.nextLine();
 
                 if(salvarBanco.equalsIgnoreCase("s")){
@@ -151,25 +150,32 @@ public class Principal {
 
 
     private void listarLivros() {
-        List <Livro> acervo = repositorio.findAll();
+        List <Object[]> acervo = repositorio.findLivrosAndAutores();
         if(acervo.isEmpty()){
             System.out.println("Acervo ainda sem registros! \n");
             acervo.forEach(System.out::println);
         } else {
-            System.out.println("Acervo Registrado: \n");
-            acervo.forEach(System.out::println);
+            System.out.println("================================================\n" +
+                               "   Registros localizados no Acervo Literalura   \n" +
+                               "================================================\n");
+                acervo.stream()
+                        .map(row -> "  Título: " + row[0] + "\n  Idioma: "
+                                + row[1] + "\n  Autore(s): " + row[2]
+                                + "\n ________________________________________________________________")
+                        .forEach(System.out::println);
         }
     }
 
     private void listarAutores() {
-        List<String> acervo = repositorio.findNomeAutores();
+        List<String> acervo = repositorio.findAutores();
         if(acervo.isEmpty()){
             System.out.println("Acervo ainda sem registros! \n");
-            acervo.forEach(System.out::println);
         } else {
-            System.out.println("Acervo Registrado: \n");
+            System.out.println("================================================\n" +
+                    "   Registros localizados no Acervo Literalura   \n" +
+                    "================================================\n");
             acervo.forEach(System.out::println);
-        }
+           }
 
     }
     private void listarAutoresVivos() {
@@ -177,17 +183,34 @@ public class Principal {
         Integer ano = leitura.nextInt();
         List<Autor> acervo = repositorio.findAutoresEmDeterminadoAno(ano);
         if(acervo.isEmpty()){
-            System.out.println("Acervo ainda sem registros! \n");
+            System.out.println("Acervo sem registros para o ano: " + ano + "!"+"\n");
             acervo.forEach(System.out::println);
         } else {
-            System.out.println("Acervo Registrado: \n");
-            acervo.forEach(System.out::println);
+            System.out.println("================================================\n" +
+                    "   Registros localizados no Acervo Literalura   \n" +
+                    "================================================\n");
+           acervo.forEach(System.out::println);
         }
 
     }
     private void listarLivreIdioma() {
-        System.out.println("Digite o idioma que deseja consultarr: ");
+        System.out.println("Digite o idioma que deseja consultar: ");
         String idioma = leitura.nextLine();
+        char primeiroChar = Character.toUpperCase(idioma.charAt(0));
+        String restante = idioma.substring(1).toLowerCase();
+        String idiomaFormatado = primeiroChar + restante;
+        List<Livro> acervo = repositorio.findByIdioma(idiomaFormatado);
+        if(acervo.isEmpty()){
+            System.out.println("Acervo sem registros para o idioma " + idioma +"!" +"\n");
+            acervo.forEach(System.out::println);
+        } else {
+            acervo.stream()
+                    .forEach(livro -> System.out.println(
+                            "------------------------------------------\n"+
+                            "Obra: " + livro.getTitulo()  +
+                                    "\n" +
+                                    "Idioma: " + livro.getIdiomas()));
+        }
 
     }
 

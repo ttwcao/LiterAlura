@@ -33,7 +33,8 @@ public class Livro {
     private List<Autor> autores = new ArrayList<>();
 
     //construto padrão
-    public Livro(ResultadoApi dadosLivros){}
+    public Livro(){}
+    //public Livro(ResultadoApi dadosLivros){}
 
         public Livro(DadosLivro livro){
             this.titulo = livro.getTitle();
@@ -96,8 +97,7 @@ public class Livro {
                 "Título = '" + titulo + '\'' +
                 ", Idiomas =" + idiomas +
                 ", Downloads realizados = " + contadorDown +
-                ", autores = " + autores +
-                '}';
+                ", Autores = " + autores;
     }
 }
 

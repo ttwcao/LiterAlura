@@ -8,20 +8,21 @@ import org.springframework.data.repository.query.Param;
 
 
 import java.util.List;
+import java.util.Objects;
 
 //interface que persiste a classe Livro pelo id do tipo Long
 //CRUD operações de criar, ler, editar e excluir.
 public interface LivroRepository extends JpaRepository<Livro, Long> {
 
-    List<Livro> findAll();
+    @Query("SELECT l.titulo, l.idiomas, a.nome FROM Livro l JOIN l.autores a")
+    List<Object[]> findLivrosAndAutores();
 
-   @Query("SELECT a.nome FROM Autor a")
-    List<String> findNomeAutores();
+    @Query("SELECT DISTINCT a.nome FROM Autor a")
+    List<String> findAutores();
 
-   //@Query("SELECT a.nome FROM Autor a WHERE :ano BETWEEN a.nascAno AND a.mortAno")
-   @Query("SELECT a FROM Autor a WHERE a.nascAno IS NOT NULL AND (a.mortAno IS NULL OR :ano <= a.mortAno) AND :ano >= a.nascAno")
-    List<Autor> findAutoresEmDeterminadoAno(Integer ano);
+    @Query("SELECT DISTINCT a FROM Autor a WHERE a.nascAno <= :ano AND (a.mortAno IS NULL OR a.mortAno >= :ano)")
+    List<Autor> findAutoresEmDeterminadoAno(@Param("ano") Integer ano);
 
-//    @Query("SELECT * FROM Livro WHERE %:idioma% MEMBER OF l.idiomas")
-//    List<Livro> findLivrosPorIdioma(@Param("idioma")Languages idioma);
+    @Query("SELECT l FROM Livro l WHERE l.idiomas LIKE %:idioma%")
+    List<Livro> findByIdioma(String idioma);
 }
