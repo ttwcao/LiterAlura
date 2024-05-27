@@ -1,5 +1,8 @@
 # Desafio Literalura - Projeto concluído </h2>
 
+![badge literalura](https://github.com/ttwcao/LiterAlura/assets/108889440/1ac2533f-d877-44ce-acc0-170a0b43eb33)
+
+
 ## Funcionalidades do projeto 
 
 1 - Buscar livro pelo título através da API Gutendex;
