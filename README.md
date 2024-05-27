@@ -5,7 +5,7 @@
 - 1 Pesquisa de livros na API
 
  Técnicas e tecnologias utilizadas
-- Java
+- [Jav](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 - InteliJ IDEA
 - Orientação a objetos
 - Spring Boot
