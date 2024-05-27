@@ -12,5 +12,5 @@
 - Maven
 - Spring Data JPA
 - JSON
-- API [Gutendex] (https://gutendex.com/)
+- API [Gutendex](https://gutendex.com/)
 - Postgres
