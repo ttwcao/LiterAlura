@@ -1,8 +1,8 @@
 # Projeto concluído, prática com a linguagem Java e os conceitos do paradigma de orientação a objetos. </h2>
 
-## Funcionalidades do projeto </h4>
+## Funcionalidades do projeto 
 
-###Funcionalidade 1 Pesquisa de livros na API
+- 1 Pesquisa de livros na API
 
  Técnicas e tecnologias utilizadas
 - Java
