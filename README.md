@@ -2,11 +2,11 @@
 
 ## Funcionalidades do projeto 
 
-1 - Buscar livro pelo título através da API Gutendex;
-2 - Listar livros registrados no bando de dados PostgreSQL;
-3 - Listar autores registrados no bando de dados PostgreSQL;
-4 - Listar autores vivos em um determinado ano no bando de dados PostgreSQL;
-5 - Listar livro em um determinado idioma no bando de dados PostgreSQL.
+ - Buscar livro pelo título através da API Gutendex;
+ - Listar livros registrados no bando de dados PostgreSQL;
+ - Listar autores registrados no bando de dados PostgreSQL;
+ - Listar autores vivos em um determinado ano no bando de dados PostgreSQL;
+ - Listar livro em um determinado idioma no bando de dados PostgreSQL.
 
 Prática com a linguagem Java e os conceitos do paradigma de orientação a objetos.
 
